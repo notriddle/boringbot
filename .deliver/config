@@ -1,5 +1,8 @@
 APP="boringbot"
 
+# Note: you'll need to change this stuff.
+# Also, your server will need erlang-esl and erlang-dev.
+
 BUILD_HOST="52.26.80.122"
 BUILD_USER="boringbot"
 BUILD_AT="/home/boringbot/build"
