@@ -1,0 +1,19 @@
+APP="boringbot"
+
+BUILD_HOST="52.26.80.122"
+BUILD_USER="boringbot"
+BUILD_AT="/home/boringbot/build"
+
+PRODUCTION_HOSTS="52.26.80.122"
+PRODUCTION_USER="boringbot"
+DELIVER_TO="/home/boringbot/production"
+
+# For *Phoenix* projects, symlink prod.secret.exs to our tmp source
+pre_erlang_get_and_update_deps() {
+  local _prod_secret_path="/home/boringbot/prod.exs"
+  if [ "$TARGET_MIX_ENV" = "prod" ]; then
+    __sync_remote "
+      ln -sfn '$_prod_secret_path' '$BUILD_AT/config/prod.exs'
+    "
+  fi
+}

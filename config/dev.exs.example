@@ -1,0 +1,12 @@
+use Mix.Config
+
+config :logger, level: :debug
+
+config :boringbot, bots: [
+  %{:server => "irc.mozilla.org", :port => 6667,
+    :nick => "boringbot-dev",
+    :user => "boringbot-dev",
+    :pass => "XXX",
+    :name => "Bors-NG IRC bot",
+    :channel => "##bors-test"}
+]
