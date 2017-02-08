@@ -57,7 +57,7 @@ defmodule Boringbot.Bot.Commands do
   @doc """
   Get a URL from an issue parse result.
 
-      iex> url_issue({"bors-ng/bors-ng", "13"})
+      iex> Boringbot.Bot.Commands.url_issue({"bors-ng/bors-ng", "13"})
       "https://api.github.com/repos/bors-ng/bors-ng/issues/13"
   """
   def url_issue({repo, number}) do
