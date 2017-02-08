@@ -1,6 +1,7 @@
 # An IRC bot
 
 * Translates GitHub issue numbers into links
+* Pings the channel when issues are opened or closed, based on a GitHub webhook
 * More features coming
 
 # Copyright license

@@ -91,6 +91,13 @@ defmodule Boringbot.Bot do
     {:noreply, config}
   end
 
+  def handle_call({:webhook, :issue, json}, _from, config) do
+    {:ok, msg} = Bot.Commands.format_issue(json)
+    Logger.info "Webhook notice: #{json["number"]}"
+    Client.msg(config.client, :notice, config.channel, msg)
+    {:reply, :ok, config}
+  end
+
   def terminate(_, state) do
     # Quit the channel and close the underlying client connection when the process is terminating
     Client.quit state.client, "Goodbye, cruel world."

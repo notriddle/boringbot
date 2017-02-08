@@ -8,9 +8,13 @@ defmodule Boringbot do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    children = Application.get_env(:boringbot, :bots)
-               |> Enum.map(fn bot -> worker(Bot, [bot]) end)
+    bots = Application.get_env(:boringbot, :bots)
+         |> Enum.map(fn bot -> worker(Bot, [bot]) end)
 
+    children = [
+      worker(Boringbot.Http, [])
+      | bots
+    ]
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Boringbot.Supervisor]

@@ -24,12 +24,12 @@ defmodule Boringbot.Bot.Commands do
       with(url <- url_issue(issue),
            {:ok, %{body: body, status_code: 200}} <- HTTPoison.get(url),
            {:ok, json} <- Poison.decode(body),
-           {:ok, group_issue} <- group_issue(json),
+           {:ok, group_issue} <- format_issue(json),
            do: {:succeeded, [group_issue, "\n"]})
       |> case do
         {:succeeded, iolist} -> iolist
         err ->
-          Logger.inspect({issue, err})
+          Logger.debug({issue, err})
           :error
       end
     end)
@@ -37,20 +37,22 @@ defmodule Boringbot.Bot.Commands do
   end
 
   @doc "Get a description from an issue JSON."
-  @spec group_issue(%{bitstring => any}) :: bitstring
-  def group_issue(%{
+  @spec format_issue(%{bitstring => any}) :: bitstring
+  def format_issue(%{
     "title" => title,
     "number" => number,
+    "state" => state,
     "pull_request" => %{"html_url" => url}}) do
-    {:ok, "PR \##{number}: #{title} - #{url}"}
+    {:ok, "PR \##{number} [#{state}]: #{title} - #{url}"}
   end
-  def group_issue(%{
+  def format_issue(%{
     "html_url" => url,
     "title" => title,
+    "state" => state,
     "number" => number}) do
-    {:ok, "Issue \##{number}: #{title} - #{url}"}
+    {:ok, "Issue \##{number} [#{state}]: #{title} - #{url}"}
   end
-  def group_issue(_) do
+  def format_issue(_) do
     {:err, :group_issue}
   end
 

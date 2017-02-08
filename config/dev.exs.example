@@ -10,3 +10,9 @@ config :boringbot, bots: [
     :name => "Bors-NG IRC bot",
     :channel => "##bors-test"}
 ]
+
+config :boringbot, http: [
+  port: 4000,
+  webhook_secret: nil,
+  webhook_to: "boringbot-dev"
+]
