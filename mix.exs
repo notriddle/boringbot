@@ -7,7 +7,11 @@ defmodule Boringbot.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps()]
+     deps: deps(),
+     name: "Boringbot",
+     source_url: "https://github.com/bors-ng/boringbot",
+     homepage_url: "https://bors-ng.github.io/",
+     docs: [main: "Boringbot", extras: ["README.md"]]]
   end
 
   # Configuration for the OTP application
@@ -36,6 +40,7 @@ defmodule Boringbot.Mixfile do
       {:edeliver, "~> 1.4.0"},
       {:plug, "~> 1.3.0"},
       {:cowboy, "~> 1.0.0"},
+      {:ex_doc, "~> 0.14", only: :dev},
     ]
   end
 end
