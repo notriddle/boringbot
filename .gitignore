@@ -3,6 +3,5 @@
 /deps
 erl_crash.dump
 *.ez
-/config/dev.exs
 /config/prod.exs
 /tmp
