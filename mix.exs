@@ -36,6 +36,8 @@ defmodule Boringbot.Mixfile do
       {:exirc, ">= 1.0.0"},
       {:poison, "~> 3.0"},
       {:httpoison, "~> 0.10.0"},
+      {:dogma, "~> 0.1", only: [:dev], runtime: false},
+      {:dialyxir, "~> 0.4", only: [:dev], runtime: false},
       {:distillery, "~> 1.0"},
       {:edeliver, "~> 1.4.0"},
       {:plug, "~> 1.3.0"},

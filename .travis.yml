@@ -1,0 +1,31 @@
+language: elixir
+elixir:
+  - 1.4.1
+otp_release:
+  - 19.1
+branches:
+    only:
+      - master
+      - staging
+      - trying
+
+cache:
+  directories:
+    - _build
+    - deps
+
+install:
+  - mix do local.rebar --force, local.hex --force, deps.get
+
+script:
+  - if [ $TYPE = test ]; then mix test; fi
+  - if [ $TYPE = dogma ]; then mix dogma; fi
+  - if [ $TYPE = dialyzer ]; then mix dialyzer --halt-exit-status; fi
+
+env:
+  - TYPE=test
+  - TYPE=dogma
+  - TYPE=dialyzer
+
+matrix:
+  fast_finish: true

@@ -1,4 +1,8 @@
 defmodule Boringbot do
+  @moduledoc """
+  A basic IRC bot.
+  """
+
   use Application
 
   alias Boringbot.Bot
@@ -11,10 +15,11 @@ defmodule Boringbot do
     bots = Application.get_env(:boringbot, :bots)
          |> Enum.map(fn bot -> worker(Bot, [bot]) end)
 
-    children = [
-      worker(Boringbot.Http, [])
-      | bots
-    ]
+    children = if is_nil Application.get_env(:boringbot, :http)[:port] do
+      bots
+    else
+      [ worker(Boringbot.Http, []) | bots ]
+    end
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Boringbot.Supervisor]

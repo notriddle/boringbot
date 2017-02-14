@@ -1,4 +1,8 @@
 defmodule Boringbot.Bot.Commands do
+  @moduledoc """
+  Text command router and implementations.
+  """
+
   @github Application.get_env(:boringbot, :github)
 
   require Logger
@@ -37,7 +41,8 @@ defmodule Boringbot.Bot.Commands do
   end
 
   @doc "Get a description from an issue JSON."
-  @spec format_issue(%{bitstring => any}) :: bitstring
+  @spec format_issue(%{bitstring => any}) ::
+    {:ok, bitstring} | {:err, :group_issue}
   def format_issue(%{
     "title" => title,
     "number" => number,
@@ -71,8 +76,11 @@ defmodule Boringbot.Bot.Commands do
 
       iex> Boringbot.Bot.Commands.parse_issues("I ❤ GitHub")
       []
-      iex> Boringbot.Bot.Commands.parse_issues("#12 is annoying, as are £13 and bors-ng/starters#14")
-      [{"bors-ng/bors-ng", "12"}, {"bors-ng/bors-ng", "13"}, {"bors-ng/starters", "14"}]
+      iex> Boringbot.Bot.Commands.parse_issues(
+      ...>   "#12 is annoying, as are £13 and bors-ng/starters#14")
+      [{"bors-ng/bors-ng", "12"},
+       {"bors-ng/bors-ng", "13"},
+       {"bors-ng/starters", "14"}]
   """
   @spec parse_issues(binary) :: [{binary, binary}]
   def parse_issues(message) do
