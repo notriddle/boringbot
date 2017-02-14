@@ -1,8 +1,16 @@
 defmodule Boringbot.Bot do
+  @moduledoc """
+  A server that speaks IRC with a channel.
+  It delegates messages to the Commands module.
+  """
+
   use GenServer
   require Logger
 
   defmodule Config do
+    @moduledoc """
+    A struct definition for connecting boringbot to an IRC channel.
+    """
     defstruct server:  nil,
               port:    nil,
               pass:    nil,
@@ -32,7 +40,8 @@ defmodule Boringbot.Bot do
   end
 
   def init([config]) do
-    # Start the client and handler processes, the ExIrc supervisor is automatically started when your app runs
+    # Start the client and handler processes,
+    # the ExIrc supervisor is automatically started when your app runs
     {:ok, client}  = ExIrc.start_client!()
 
     # Register the event handler with ExIrc
@@ -48,7 +57,12 @@ defmodule Boringbot.Bot do
   def handle_info({:connected, server, port}, config) do
     Logger.debug "Connected to #{server}:#{port}"
     Logger.debug "Logging in to #{server}:#{port} as #{config.nick}.."
-    Client.logon config.client, config.pass, config.nick, config.user, config.name
+    Client.logon(
+      config.client,
+      config.pass,
+      config.nick,
+      config.user,
+      config.name)
     {:noreply, config}
   end
   def handle_info(:logged_in, config) do
@@ -71,12 +85,16 @@ defmodule Boringbot.Bot do
     Logger.info "Users logged in to #{channel}:\n#{names}"
     {:noreply, config}
   end
-  def handle_info({:received, msg, %SenderInfo{:nick => nick}, channel}, config) do
+  def handle_info(
+    {:received, msg, %SenderInfo{:nick => nick}, channel},
+    config) do
     Logger.info "#{nick} from #{channel}: #{msg}"
     do_reply(config, Bot.Commands.group(nick, msg))
     {:noreply, config}
   end
-  def handle_info({:mentioned, msg, %SenderInfo{:nick => nick}, channel}, config) do
+  def handle_info(
+    {:mentioned, msg, %SenderInfo{:nick => nick}, channel},
+    config) do
     Logger.warn "#{nick} mentioned you in #{channel}"
     do_reply(config, Bot.Commands.msg(nick, msg))
     {:noreply, config}
@@ -99,7 +117,8 @@ defmodule Boringbot.Bot do
   end
 
   def terminate(_, state) do
-    # Quit the channel and close the underlying client connection when the process is terminating
+    # Quit the channel and close the underlying client connection
+    # when the process is terminating
     Client.quit state.client, "Goodbye, cruel world."
     Client.stop! state.client
     :ok

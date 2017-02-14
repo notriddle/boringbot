@@ -1,4 +1,8 @@
 defmodule Boringbot.Http do
+  @moduledoc """
+  Plug/Cowboy HTTP server for receiving GitHub webhooks
+  """
+
   use Plug.Router
 
   @http Application.get_env(:boringbot, :http)

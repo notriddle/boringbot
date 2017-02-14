@@ -2,7 +2,8 @@
 # They can then be used by adding `plugin MyPlugin` to
 # either an environment, or release definition, where
 # `MyPlugin` is the name of the plugin module.
-Path.join(["rel", "plugins", "*.exs"])
+["rel", "plugins", "*.exs"]
+|> Path.join()
 |> Path.wildcard()
 |> Enum.map(&Code.eval_file(&1))
 
@@ -24,13 +25,15 @@ use Mix.Releases.Config,
 environment :dev do
   set dev_mode: true
   set include_erts: false
-  set cookie: :"DzC8jMYw}VVtmQto|8Yw7V|JzMl:*~~?n{V^r[!skqZoc}uLlsRFtGad<4$z%leQ"
+  set cookie:
+    :"DzC8jMYw}VVtmQto|8Yw7V|JzMl:*~~?n{V^r[!skqZoc}uLlsRFtGad<4$z%leQ"
 end
 
 environment :prod do
   set include_erts: true
   set include_src: false
-  set cookie: :"jt[lTO>(O3)YgjnrO~nd~{0N%b2V<o9OJGF~~f087igwOp3mdlQ7Egn&A=5@Cvt{"
+  set cookie:
+    :"jt[lTO>(O3)YgjnrO~nd~{0N%b2V<o9OJGF~~f087igwOp3mdlQ7Egn&A=5@Cvt{"
 end
 
 # You may define one or more releases in this file.
@@ -41,4 +44,3 @@ end
 release :boringbot do
   set version: current_version(:boringbot)
 end
-
