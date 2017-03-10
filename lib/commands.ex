@@ -5,6 +5,8 @@ defmodule Boringbot.Bot.Commands do
 
   @github Application.get_env(:boringbot, :github)
 
+  @type response :: [response] | binary
+
   require Logger
 
   def msg(_sender, _message) do
@@ -14,13 +16,112 @@ defmodule Boringbot.Bot.Commands do
   def group(sender, message) do
     [
       group_issues(sender, message),
+      get_messages(sender),
+      cmd_start(sender, message),
     ]
+  end
+
+  @doc """
+  Conditionally dispatch based on the command prefix.
+
+      iex> Boringbot.Bot.Commands.cmd_start("me", "!botsnack")
+      "😋"
+      iex> Boringbot.Bot.Commands.cmd_start("me", "! botsnack")
+      "😋"
+      iex> Boringbot.Bot.Commands.cmd_start("me", "boringbot: botsnack")
+      "😋"
+  """
+  @spec cmd_start(binary, binary) :: response
+  def cmd_start(sender, "!"), do: cmd_ping(sender)
+  def cmd_start(sender, "!" <> line), do: cmd_line(sender, line)
+  def cmd_start(sender, "boringbot:" <> line), do: cmd_line(sender, line)
+  def cmd_start(sender, "boringbot," <> line), do: cmd_line(sender, line)
+  def cmd_start(sender, "boringbot " <> line), do: cmd_line(sender, line)
+  def cmd_start(_sender, _message), do: []
+
+  @doc """
+  Dispatch based on the first part of a command line.
+  """
+  @spec cmd_line(binary, binary) :: response
+  def cmd_line(sender, " " <> command), do: cmd_line(sender, command)
+  def cmd_line(sender, "tell " <> args), do: cmd_tell(sender, args)
+  def cmd_line(sender, "ask " <> args), do: cmd_tell(sender, args)
+  def cmd_line(sender, "ping"), do: cmd_ping(sender)
+  def cmd_line(_sender, "botsnack"), do: "😋"
+  def cmd_line(_sender, _command), do: []
+
+  @doc """
+  Record a tell message.
+  """
+  @spec cmd_tell(binary, binary) :: binary
+  def cmd_tell(sender, args) do
+    args
+    |> String.trim()
+    |> parse_tell("")
+    |> do_tell(sender)
+  end
+  def do_tell({:ok, user, message}, sender) do
+    Boringbot.Messages.add_message(user, sender, message)
+    sender <> ": ✔ I'll let them know."
+  end
+  def do_tell({:error, user}, sender) do
+    sender <> ~S{: Am I supposed to tell "} <> user <> ~S{"" something?}
+  end
+
+  @doc """
+  Parse a tell message.
+  """
+  @spec parse_tell(binary, binary) ::
+    {:ok, binary, binary} |
+    {:error, binary}
+  def parse_tell(" " <> message, user), do: {:ok, user, String.trim(message)}
+  def parse_tell(":" <> message, user), do: {:ok, user, String.trim(message)}
+  def parse_tell("," <> message, user), do: {:ok, user, String.trim(message)}
+  def parse_tell("", user), do: {:error, user}
+  def parse_tell(<<c :: 8, args :: binary>>, user) do
+    parse_tell(args, <<user :: binary, c :: 8>>)
+  end
+
+  @doc """
+  Respond to a ping.
+  """
+  @spec cmd_ping(binary) :: response
+  def cmd_ping(sender) do
+    [response] = Enum.take_random([
+      # sfx
+      "pong",
+      "boing",
+      "doing",
+      "doink",
+      "boink",
+      "ding",
+      # tech
+      "[ACK]",
+      "204 NO CONTENT",
+      "ECHO_REPLY",
+      "PING REPLY",
+      # emoji / emoticon
+      "😄",
+      ":-)",
+      "(-:" ], 1)
+    sender <> ": " <> response
+  end
+
+  @doc """
+  Release any messages destined for this user.
+  """
+  @spec get_messages(binary) :: response
+  def get_messages(user) do
+    Boringbot.Messages.get_messages(user)
+    |> Enum.map(fn {from, contents} ->
+      user <> ": [" <> from <> "] " <> contents
+    end)
   end
 
   @doc """
   Build a list of responses for the issues mentioned in this message.
   """
-  @spec group_issues(binary, binary) :: list
+  @spec group_issues(binary, binary) :: response
   def group_issues(_sender, message) do
     message
     |> parse_issues()
@@ -41,8 +142,8 @@ defmodule Boringbot.Bot.Commands do
   end
 
   @doc "Get a description from an issue JSON."
-  @spec format_issue(%{bitstring => any}) ::
-    {:ok, bitstring} | {:err, :group_issue}
+  @spec format_issue(%{binary => any}) ::
+    {:ok, binary} | {:err, :group_issue}
   def format_issue(%{
     "title" => title,
     "number" => number,
