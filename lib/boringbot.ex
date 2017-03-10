@@ -20,6 +20,7 @@ defmodule Boringbot do
     else
       [ worker(Boringbot.Http, []) | bots ]
     end
+    children = [ worker(Boringbot.Messages, []) | children ]
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Boringbot.Supervisor]
