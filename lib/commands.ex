@@ -65,7 +65,7 @@ defmodule Boringbot.Bot.Commands do
     sender <> ": ✔ I'll let them know."
   end
   def do_tell({:error, user}, sender) do
-    sender <> ": Am I supposed to tell \"" <> user <> "\" something?"
+    sender <> ~S{: Am I supposed to tell "} <> user <> ~S{"" something?}
   end
 
   @doc """
