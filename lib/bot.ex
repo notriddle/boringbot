@@ -92,13 +92,6 @@ defmodule Boringbot.Bot do
     do_reply(config, Bot.Commands.group(nick, msg))
     {:noreply, config}
   end
-  def handle_info(
-    {:mentioned, msg, %SenderInfo{:nick => nick}, channel},
-    config) do
-    Logger.warn "#{nick} mentioned you in #{channel}"
-    do_reply(config, Bot.Commands.msg(nick, msg))
-    {:noreply, config}
-  end
   def handle_info({:received, msg, %SenderInfo{:nick => nick}}, config) do
     Logger.warn "#{nick}: #{msg}"
     do_reply(config, Bot.Commands.msg(nick, msg))
