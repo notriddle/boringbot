@@ -48,7 +48,13 @@ defmodule Boringbot.Bot.Commands do
   def cmd_line(sender, "ask " <> args), do: cmd_tell(sender, args)
   def cmd_line(sender, "ping"), do: cmd_ping(sender)
   def cmd_line(_sender, "botsnack"), do: "😋"
+  def cmd_line(sender, "help"), do: cmd_help(sender)
   def cmd_line(_sender, _command), do: []
+
+  @doc """
+  Give out a link to boringbot's README.
+  """
+  def cmd_help(sender), do: sender <> ": https://github.com/bors-ng/boringbot"
 
   @doc """
   Record a tell message.
