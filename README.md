@@ -3,7 +3,7 @@
 ## Mailbot: tell it to tell someone else something, when they are next seen
 
     usera>      !tell userb bors is down again
-    boringbot>  frewsxcv: ✔ I'll let them know
+    boringbot>  usera: ✔ I'll let them know
     ... five hours later ...
     userb>      I'm going to work on new features now!
     boringbot>  userb: [usera] bors is down again
