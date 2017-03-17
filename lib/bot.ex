@@ -73,7 +73,7 @@ defmodule Boringbot.Bot do
   end
   def handle_info(:disconnected, config) do
     Logger.debug "Disconnected from #{config.server}:#{config.port}"
-    {:stop, :normal, config}
+    {:stop, :disconnected, config}
   end
   def handle_info({:joined, channel}, config) do
     Logger.debug "Joined #{channel}"
