@@ -147,15 +147,53 @@ defmodule Boringbot.Bot.Commands do
     |> Enum.filter(&(&1 != :error))
   end
 
-  @doc "Get a description from an issue JSON."
+  @doc """
+  Get a description from an issue JSON.
+
+      iex> Boringbot.Bot.Commands.format_issue(%{
+      ...>   "title" => "test",
+      ...>   "number" => 1,
+      ...>   "state" => "open",
+      ...>   "html_url" => "h" })
+      {:ok, "Issue #1 [open]: test - h"}
+      iex> Boringbot.Bot.Commands.format_issue(%{
+      ...>   "title" => "test2",
+      ...>   "number" => 1,
+      ...>   "state" => "closed",
+      ...>   "html_url" => "h2" })
+      {:ok, "Issue #1 [closed]: test2 - h2"}
+      iex> Boringbot.Bot.Commands.format_issue(%{
+      ...>   "title" => "test",
+      ...>   "number" => 1,
+      ...>   "state" => "open",
+      ...>   "pull_request" => %{ "html_url" => "h", "merged" => false } })
+      {:ok, "PR #1 [open]: test - h"}
+      iex> Boringbot.Bot.Commands.format_issue(%{
+      ...>   "title" => "test",
+      ...>   "number" => 1,
+      ...>   "state" => "open",
+      ...>   "pull_request" => %{ "html_url" => "h", "merged" => true } })
+      {:ok, "PR #1 [open/merged]: test - h"}
+      iex> Boringbot.Bot.Commands.format_issue(%{
+      ...>   "title" => "test",
+      ...>   "number" => 1,
+      ...>   "state" => "closed",
+      ...>   "pull_request" => %{ "html_url" => "h", "merged" => true } })
+      {:ok, "PR #1 [merged]: test - h"}
+  """
   @spec format_issue(%{binary => any}) ::
     {:ok, binary} | {:err, :group_issue}
   def format_issue(%{
     "title" => title,
     "number" => number,
     "state" => state,
-    "pull_request" => %{"html_url" => url}}) do
-    {:ok, "PR \##{number} [#{state}]: #{title} - #{url}"}
+    "pull_request" => %{ "html_url" => url, "merged" => merged } }) do
+    pr_state = case {state, merged} do
+      {"closed", true} -> "merged"
+      {_, true} -> "open/merged"
+      {state, false} -> state
+    end
+    {:ok, "PR \##{number} [#{pr_state}]: #{title} - #{url}"}
   end
   def format_issue(%{
     "html_url" => url,
