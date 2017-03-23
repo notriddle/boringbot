@@ -194,7 +194,7 @@ defmodule Boringbot.Bot.Commands do
     local_issues = ~R{(?:\W|^)(?:#|£)(\d+)}
     |> Regex.scan(message)
     |> Enum.map(fn [_, issue] -> {@github[:repo], issue} end)
-    foreign_issues = ~R{(?:\W|^)([a-zA-Z0-9\-_]+/[a-zA-Z0-9\-_]+)(?:#|£)(\d+)}
+    foreign_issues = ~R{(?:\W|^)([a-zA-Z0-9\-_]+/[a-zA-Z0-9\-_\.]+)(?:#|£)(\d+)}
     |> Regex.scan(message)
     |> Enum.map(fn [_, repo, issue] -> {repo, issue} end)
     local_issues ++ foreign_issues
