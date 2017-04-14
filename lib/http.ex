@@ -17,15 +17,15 @@ defmodule Boringbot.Http do
   def issue_action?("closed"), do: true
   def issue_action?(_), do: false
 
-  def issue_type?("issues"), do: true
-  def issue_type?("pull_request"), do: true
-  def issue_type?(_), do: false
+  def issue(%{"issue" => issue}), do: issue
+  def issue(%{"pull_request" => issue}), do: issue
+  def issue(_), do: false
 
   post "/webhook/github" do
-    type? = issue_type?(get_req_header(conn, "x-github-event"))
+    issue = issue(conn.body_params)
     action? = issue_action?(conn.body_params["action"])
-    if type? && action? do
-      GenServer.call(@bot, {:webhook, :issue, conn.body_params})
+    if issue && action? do
+      GenServer.call(@bot, {:webhook, :issue, issue})
     else
       :ok
     end
