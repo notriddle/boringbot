@@ -12,24 +12,22 @@ defmodule Boringbot.Http do
   plug :match
   plug :dispatch
 
-  def notify_action?("opened"), do: true
-  def notify_action?("reopened"), do: true
-  def notify_action?("closed"), do: true
-  def notify_action?(_), do: false
+  def issue_action?("opened"), do: true
+  def issue_action?("reopened"), do: true
+  def issue_action?("closed"), do: true
+  def issue_action?(_), do: false
 
-  def notify_type("issues"), do: :issue
-  def notify_type("pull_request"), do: :pull_request
-  def notify_type(_), do: nil
+  def issue_type?("issues"), do: true
+  def issue_type?("pull_request"), do: true
+  def issue_type?(_), do: false
 
   post "/webhook/github" do
-    case notify_type(get_req_header(conn, "x-github-event")) do
-      nil -> :ok
-      notify_type ->
-        if notify_action?(conn.body_params["action"]) do
-          GenServer.call(@bot, {:webhook, notify_type, conn.body_params})
-        else
-          :ok
-        end
+    type? = issue_type?(get_req_header(conn, "x-github-event"))
+    action? = issue_action?(conn.body_params["action"])
+    if type? && action? do
+      GenServer.call(@bot, {:webhook, :issue, conn.body_params})
+    else
+      :ok
     end
 
     send_resp(conn, 200, "")
