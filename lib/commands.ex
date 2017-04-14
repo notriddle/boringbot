@@ -183,7 +183,7 @@ defmodule Boringbot.Bot.Commands do
       ...>   "title" => "test",
       ...>   "number" => 1,
       ...>   "state" => "open",
-      ...>   "html_url" => "h"
+      ...>   "html_url" => "h",
       ...>   "merged" => true })
       {:ok, "PR #1 [open/merged]: test - h"}
       iex> Boringbot.Bot.Commands.format_issue(%{
@@ -200,7 +200,8 @@ defmodule Boringbot.Bot.Commands do
     "title" => title,
     "number" => number,
     "state" => state,
-    "pull_request" => %{ "html_url" => url, "merged" => merged } }) do
+    "html_url" => url,
+    "merged" => merged }) do
     pr_state = case {state, merged} do
       {"closed", true} -> "merged"
       {_, true} -> "open/merged"
@@ -239,15 +240,25 @@ defmodule Boringbot.Bot.Commands do
       [{"bors-ng/bors-ng", "12"},
        {"bors-ng/bors-ng", "13"},
        {"bors-ng/starters", "14"}]
+      iex> Boringbot.Bot.Commands.parse_issues(
+      ...>   "https://github.com/bors-ng/boringbot/issues/6")
+      [{"bors-ng/boringbot", "6"}]
+      iex> Boringbot.Bot.Commands.parse_issues(
+      ...>   "bla https://github.com/bors-ng/boringbot/pull/16 bla")
+      [{"bors-ng/boringbot", "16"}]
   """
   @spec parse_issues(binary) :: [{binary, binary}]
   def parse_issues(message) do
-    local_issues = ~R{(?:\W|^)(?:#|£)(\d+)}
+    repo_regex = ~s"[a-zA-Z0-9\-_]+/[a-zA-Z0-9\-_\.]+"
+    local_issues = ~r"(?:\W|^)(?:#|£)(\d+)"
     |> Regex.scan(message)
     |> Enum.map(fn [_, issue] -> {@github[:repo], issue} end)
-    foreign_issues = ~R{(?:\W|^)([a-zA-Z0-9\-_]+/[a-zA-Z0-9\-_\.]+)(?:#|£)(\d+)}
+    foreign_issues = ~r"(?:\W|^)(#{repo_regex})(?:#|£)(\d+)"
     |> Regex.scan(message)
     |> Enum.map(fn [_, repo, issue] -> {repo, issue} end)
-    local_issues ++ foreign_issues
+    url_issues = ~r"https://github.com/(#{repo_regex})/(?:issues|pull)/(\d+)"
+    |> Regex.scan(message)
+    |> Enum.map(fn [_, repo, issue] -> {repo, issue} end)
+    local_issues ++ foreign_issues ++ url_issues
   end
 end
