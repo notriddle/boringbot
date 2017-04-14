@@ -133,8 +133,7 @@ defmodule Boringbot.Bot.Commands do
     |> parse_issues()
     |> Enum.map(fn issue ->
       with(url <- url_issue(issue),
-           {:ok, %{body: body, status_code: 200}} <- HTTPoison.get(url),
-           {:ok, json} <- Poison.decode(body),
+           {:ok, json} <- fetch_issue(url),
            {:ok, group_issue} <- format_issue(json),
            do: {:succeeded, [group_issue, "\n"]})
       |> case do
@@ -145,6 +144,17 @@ defmodule Boringbot.Bot.Commands do
       end
     end)
     |> Enum.filter(&(&1 != :error))
+  end
+
+  @spec fetch_issue(binary) :: {:ok, map} | {:error, term}
+  def fetch_issue(url) do
+    with({:ok, %{body: body, status_code: 200}} <- HTTPoison.get(url),
+         {:ok, json} <- Poison.decode(body)) do
+        case json do
+          %{ "pull_request" => %{ "url" => url }} -> fetch_issue(url)
+          json -> {:ok, json}
+        end
+    end
   end
 
   @doc """
@@ -166,19 +176,22 @@ defmodule Boringbot.Bot.Commands do
       ...>   "title" => "test",
       ...>   "number" => 1,
       ...>   "state" => "open",
-      ...>   "pull_request" => %{ "html_url" => "h", "merged" => false } })
+      ...>   "html_url" => "h",
+      ...>   "merged" => false })
       {:ok, "PR #1 [open]: test - h"}
       iex> Boringbot.Bot.Commands.format_issue(%{
       ...>   "title" => "test",
       ...>   "number" => 1,
       ...>   "state" => "open",
-      ...>   "pull_request" => %{ "html_url" => "h", "merged" => true } })
+      ...>   "html_url" => "h"
+      ...>   "merged" => true })
       {:ok, "PR #1 [open/merged]: test - h"}
       iex> Boringbot.Bot.Commands.format_issue(%{
       ...>   "title" => "test",
       ...>   "number" => 1,
       ...>   "state" => "closed",
-      ...>   "pull_request" => %{ "html_url" => "h", "merged" => true } })
+      ...>   "html_url" => "h",
+      ...>   "merged" => true })
       {:ok, "PR #1 [merged]: test - h"}
   """
   @spec format_issue(%{binary => any}) ::
