@@ -12,30 +12,24 @@ defmodule Boringbot.Http do
   plug :match
   plug :dispatch
 
-  post "/webhook/github" do
-    send_issue = case get_req_header(conn, "x-github-event") do
-      ["issues"] ->
-        case conn.body_params["action"] do
-          "opened" -> conn.body_params["issue"]
-          "reopened" -> conn.body_params["issue"]
-          "closed" -> conn.body_params["issue"]
-          _ -> nil
-        end
-      ["pull_request"] ->
-        pull_request = conn.body_params["pull_request"]
-        issue = Map.put(pull_request, "pull_request", pull_request)
-        case conn.body_params["action"] do
-          "opened" -> issue
-          "reopened" -> issue
-          "closed" -> issue
-          _ -> nil
-        end
-      _ ->
-        nil
-    end
+  def notify_action?("opened"), do: true
+  def notify_action?("reopened"), do: true
+  def notify_action?("closed"), do: true
+  def notify_action?(_), do: false
 
-    unless is_nil send_issue do
-      :ok = GenServer.call(@bot, {:webhook, :issue, send_issue})
+  def notify_type("issues"), do: :issue
+  def notify_type("pull_request"), do: :pull_request
+  def notify_type(_), do: nil
+
+  post "/webhook/github" do
+    case notify_type(get_req_header(conn, "x-github-event")) do
+      nil -> :ok
+      notify_type ->
+        if notify_action?(conn.body_params["action"]) do
+          GenServer.call(@bot, {:webhook, notify_type, conn.body_params})
+        else
+          :ok
+        end
     end
 
     send_resp(conn, 200, "")
