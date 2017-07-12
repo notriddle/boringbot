@@ -47,7 +47,10 @@ defmodule Boringbot.Bot.Commands do
   def cmd_line(sender, "tell " <> args), do: cmd_tell(sender, args)
   def cmd_line(sender, "ask " <> args), do: cmd_tell(sender, args)
   def cmd_line(sender, "ping"), do: cmd_ping(sender)
+  def cmd_line(_sender, "calculate " <> args), do: cmd_calc(args)
+  def cmd_line(_sender, "calc " <> args), do: cmd_calc(args)
   def cmd_line(_sender, "botsnack"), do: "😋"
+  def cmd_line(_sender, "crash"), do: raise RuntimeError, "explicit crash"
   def cmd_line(sender, "help"), do: cmd_help(sender)
   def cmd_line(_sender, _command), do: []
 
@@ -260,5 +263,34 @@ defmodule Boringbot.Bot.Commands do
     |> Regex.scan(message)
     |> Enum.map(fn [_, repo, issue] -> {repo, issue} end)
     local_issues ++ foreign_issues ++ url_issues
+  end
+
+  @doc """
+  Perform arithmetic.
+  See <https://github.com/narrowtux/abacus> for a list of supported operations.
+      iex> Boringbot.Bot.Commands.cmd_calc("1+1")
+      "2"
+      iex> Boringbot.Bot.Commands.cmd_calc("log10(e)/log10(e)")
+      "1.0"
+      iex> Boringbot.Bot.Commands.cmd_calc("(")
+      "Parse failed"
+  """
+  @spec cmd_calc(binary) :: response
+  def cmd_calc(expression) do
+    vars = %{
+      "pi" => 3.14159265,
+      "e"  => 2.71828182,
+    }
+    expression
+    |> Abacus.parse()
+    |> case do
+      {:ok, syntax} -> Abacus.eval(syntax, vars)
+      _ -> {:error, :parse_failed}
+    end
+    |> case do
+      {:ok, result} -> to_string(result)
+      {:error, :parse_failed} -> "Parse failed"
+      _ -> "Calc failed"
+    end
   end
 end

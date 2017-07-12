@@ -3,7 +3,7 @@ defmodule Boringbot.Mixfile do
 
   def project do
     [app: :boringbot,
-     version: "0.3.5",
+     version: "0.3.6",
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -42,6 +42,7 @@ defmodule Boringbot.Mixfile do
       {:edeliver, "~> 1.4.0"},
       {:plug, "~> 1.3.0"},
       {:cowboy, "~> 1.0.0"},
+      {:abacus, "~> 0.3.1"},
       {:ex_doc, "~> 0.14", only: :dev},
     ]
   end

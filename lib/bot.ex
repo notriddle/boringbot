@@ -89,12 +89,16 @@ defmodule Boringbot.Bot do
     {:received, msg, %SenderInfo{:nick => nick}, channel},
     config) do
     Logger.info "#{nick} from #{channel}: #{msg}"
-    do_reply(config, Bot.Commands.group(nick, msg))
+    handle_command(:group, nick, msg)
     {:noreply, config}
   end
   def handle_info({:received, msg, %SenderInfo{:nick => nick}}, config) do
     Logger.warn "#{nick}: #{msg}"
-    do_reply(config, Bot.Commands.msg(nick, msg))
+    handle_command(:msg, nick, msg)
+    {:noreply, config}
+  end
+  def handle_info({:'DOWN', _, :process, pid, {message, _stack}}, config) do
+    do_reply(config, "[crash] #{inspect(pid)} - #{inspect(message)}")
     {:noreply, config}
   end
   # Catch-all for messages you don't care about
@@ -108,6 +112,10 @@ defmodule Boringbot.Bot do
     Client.msg(config.client, :notice, config.channel, msg)
     {:reply, :ok, config}
   end
+  def handle_call({:do_reply, msg}, _from, config) do
+    do_reply(config, msg)
+    {:reply, :ok, config}
+  end
 
   def terminate(_, state) do
     # Quit the channel and close the underlying client connection
@@ -115,6 +123,16 @@ defmodule Boringbot.Bot do
     Client.quit state.client, "Goodbye, cruel world."
     Client.stop! state.client
     :ok
+  end
+
+  @spec handle_command(:msg | :group, binary, binary) :: :ok
+  defp handle_command(type, nick, msg) do
+    bot = self()
+    {pid, _} = Process.spawn(fn ->
+      msg = apply(Bot.Commands, type, [nick, msg])
+      GenServer.call(bot, {:do_reply, msg})
+    end, [:monitor])
+    :timer.kill_after(:timer.seconds(10), pid)
   end
 
   defp do_reply(_, []) do
@@ -131,6 +149,7 @@ defmodule Boringbot.Bot do
     %Config{client: client, channel: channel},
     msg
   ) when is_binary(msg) do
+    Logger.info("Send: #{msg}")
     Client.msg(client, :privmsg, channel, msg)
   end
 end
