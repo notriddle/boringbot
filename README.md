@@ -27,6 +27,13 @@
 
     <boringbot> Issue #64 [closed]: Merging a PR does not close it, or its associated issues - https://github.com/bors-ng/bors-ng/issues/64
 
+## Perform arithmetic
+
+See <https://github.com/narrowtux/abacus> for a list of supported commands.
+
+    user> !calc 1+1
+    boringbot> 2
+
 # Copyright license
 
 boringbot is licensed under the Apache license, version 2.0.
