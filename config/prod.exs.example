@@ -8,11 +8,11 @@ config :boringbot, bots: [
     :user => "boringbot",
     :pass => "XXX",
     :name => "Bors-NG IRC bot",
-    :channel => "#bors"}
+    :channels => ["#bors"]}
 ]
 
 config :boringbot, http: [
   port: 80,
   webhook_secret: "XXX",
-  webhook_to: "boringbot"
+  webhook_to: "#bors"
 ]
