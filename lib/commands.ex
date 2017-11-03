@@ -9,7 +9,7 @@ defmodule Boringbot.Bot.Commands do
 
   require Logger
 
-  def msg(_sender, _message) do
+  def msg(sender, message) do
     [
       cmd_line(sender, message)
     ]
