@@ -4,6 +4,6 @@ use Mix.Config
 
 config :boringbot, :github,
   api: "https://api.github.com",
-  repo: "bors-ng/bors-ng"
+  repo: "notriddle/boringbot"
 
 import_config "#{Mix.env}.exs"

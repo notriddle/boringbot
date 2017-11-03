@@ -14,7 +14,7 @@
     usera>      !ping
     boringbot>  usera: ECHO_REPLY
     userb>      !help
-    boringbot>  userb: https://github.com/bors-ng/boringbot
+    boringbot>  userb: https://github.com/notriddle/boringbot
     userc>      !botsnack
     boringbot>  😋
 

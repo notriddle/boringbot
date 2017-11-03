@@ -9,8 +9,7 @@ defmodule Boringbot.Mixfile do
      start_permanent: Mix.env == :prod,
      deps: deps(),
      name: "Boringbot",
-     source_url: "https://github.com/bors-ng/boringbot",
-     homepage_url: "https://bors-ng.github.io/",
+     source_url: "https://github.com/notriddle/boringbot",
      docs: [main: "Boringbot", extras: ["README.md"]]]
   end
 

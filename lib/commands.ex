@@ -57,7 +57,7 @@ defmodule Boringbot.Bot.Commands do
   @doc """
   Give out a link to boringbot's README.
   """
-  def cmd_help(sender), do: sender <> ": https://github.com/bors-ng/boringbot"
+  def cmd_help(sender), do: sender <> ": https://github.com/notriddle/boringbot"
 
   @doc """
   Record a tell message.
