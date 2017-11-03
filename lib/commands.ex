@@ -10,7 +10,9 @@ defmodule Boringbot.Bot.Commands do
   require Logger
 
   def msg(_sender, _message) do
-    []
+    [
+      cmd_line(sender, message)
+    ]
   end
 
   def group(sender, message) do
