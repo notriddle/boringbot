@@ -34,6 +34,11 @@ See <https://github.com/narrowtux/abacus> for a list of supported commands.
     user> !calc 1+1
     boringbot> 2
 
+## Generate random number
+
+    user> boringbot, roll 1d10
+    boringbot> user: 2
+
 # Copyright license
 
 boringbot is licensed under the Apache license, version 2.0.
