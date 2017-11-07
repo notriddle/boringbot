@@ -8,7 +8,7 @@ config :boringbot, bots: [
     :user => "boringbot-dev",
     :pass => "",
     :name => "FSTDT IRC bot",
-    :channels => ["#fstdt-dev", "#fstdt"]}
+    :channels => ["#fstdt-dev"]}
 ]
 
 config :boringbot, http: [

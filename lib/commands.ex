@@ -49,6 +49,7 @@ defmodule Boringbot.Bot.Commands do
   def cmd_line(sender, "tell " <> args), do: cmd_tell(sender, args)
   def cmd_line(sender, "ask " <> args), do: cmd_tell(sender, args)
   def cmd_line(sender, "ping"), do: cmd_ping(sender)
+  def cmd_line(sender, "roll " <> args), do: cmd_roll(sender, args)
   def cmd_line(_sender, "calculate " <> args), do: cmd_calc(args)
   def cmd_line(_sender, "calc " <> args), do: cmd_calc(args)
   def cmd_line(_sender, "botsnack"), do: "😋"
@@ -116,6 +117,25 @@ defmodule Boringbot.Bot.Commands do
       ":-)",
       "(-:" ], 1)
     sender <> ": " <> response
+  end
+
+  @spec cmd_roll(binary, binary) :: response
+  def cmd_roll(sender, args) do
+    {count, sides} = args
+    |> String.split(~r/(\s|d)+/)
+    |> case do
+      [count, sides] ->
+        {count, ""} = Integer.parse(count)
+        {sides, ""} = Integer.parse(sides)
+        {count, sides}
+      [sides] ->
+        {sides, ""} = Integer.parse(sides)
+        {1, sides}
+    end
+    Enum.map(1..count, fn _ ->
+      result = Enum.random(1..sides)
+      sender <> ": 🎲 " <> to_string(result)
+    end)
   end
 
   @doc """
