@@ -50,6 +50,7 @@ defmodule Boringbot.Bot.Commands do
   def cmd_line(sender, "ask " <> args), do: cmd_tell(sender, args)
   def cmd_line(sender, "ping"), do: cmd_ping(sender)
   def cmd_line(sender, "roll " <> args), do: cmd_roll(sender, args)
+  def cmd_line(sender, "roll"), do: cmd_roll(sender, "1d6")
   def cmd_line(_sender, "calculate " <> args), do: cmd_calc(args)
   def cmd_line(_sender, "calc " <> args), do: cmd_calc(args)
   def cmd_line(_sender, "botsnack"), do: "😋"
