@@ -26,12 +26,12 @@ defmodule Boringbot.Bot.Commands do
   @doc """
   Conditionally dispatch based on the command prefix.
 
-      iex> Boringbot.Bot.Commands.cmd_start("me", "!botsnack")
-      "😋"
-      iex> Boringbot.Bot.Commands.cmd_start("me", "! botsnack")
-      "😋"
-      iex> Boringbot.Bot.Commands.cmd_start("me", "boringbot: botsnack")
-      "😋"
+      iex> Boringbot.Bot.Commands.cmd_start("me", "!roll over")
+      "🙃🙂💨"
+      iex> Boringbot.Bot.Commands.cmd_start("me", "! roll over")
+      "🙃🙂💨"
+      iex> Boringbot.Bot.Commands.cmd_start("me", "boringbot: roll over")
+      "🙃🙂💨"
   """
   @spec cmd_start(binary, binary) :: response
   def cmd_start(sender, "!"), do: cmd_ping(sender)
@@ -265,8 +265,8 @@ defmodule Boringbot.Bot.Commands do
       []
       iex> Boringbot.Bot.Commands.parse_issues(
       ...>   "#12 is annoying, as are £13 and bors-ng/starters#14")
-      [{"bors-ng/bors-ng", "12"},
-       {"bors-ng/bors-ng", "13"},
+      [{"notriddle/boringbot", "12"},
+       {"notriddle/boringbot", "13"},
        {"bors-ng/starters", "14"}]
       iex> Boringbot.Bot.Commands.parse_issues(
       ...>   "https://github.com/bors-ng/boringbot/issues/6")
