@@ -7,6 +7,8 @@ defmodule Boringbot.Bot.Channel do
   use GenServer
   require Logger
 
+  @message_limit 5
+
   defmodule Config do
     @moduledoc """
     A struct definition for connecting boringbot to an IRC channel.
@@ -77,7 +79,7 @@ defmodule Boringbot.Bot.Channel do
     {:reply, :ok, config}
   end
   def handle_call({:do_reply, msg}, _from, config) do
-    do_reply(config, truncate(msg))
+    do_reply(config, msg)
     {:reply, :ok, config}
   end
 
@@ -86,41 +88,42 @@ defmodule Boringbot.Bot.Channel do
     bot = self()
     {pid, _} = Process.spawn(fn ->
       msg = apply(Bot.Commands, type, [nick, msg])
-      GenServer.call(bot, {:do_reply, truncate(msg)})
+      GenServer.call(bot, {:do_reply, msg})
     end, [:monitor])
     :timer.kill_after(:timer.seconds(10), pid)
   end
 
-  @doc """
-  Keep the user from pushing an unbounded number of messages into the IRC channel.
-
-      iex> Channel.truncate(["do", "re", "mi", "fa", "so", "la", "ti", "do"])
-      ["do", "re", "mi", "fa", "so", "⚠ truncated output ⚠"]
-      iex> Channel.truncate(["1", "2", "3", "4", "5"])
-      ["1", "2", "3", "4", "5"]
-  """
-  def truncate([a, b, c, d, e, f | _]) do
-    [a, b, c, d, e, "⚠ truncated output ⚠"]
-  end
-  def truncate(list) do
-    list
-  end
-
-  defp do_reply(_, []) do
-    :ok
-  end
-  defp do_reply(config, [a]) do
-    do_reply(config, a)
-  end
-  defp do_reply(config, [a | b]) do
-    do_reply(config, a)
-    do_reply(config, b)
+  defp do_reply(_config, _messages, n \\ 0)
+  defp do_reply(_, [], n) do
+    n
   end
   defp do_reply(
     %Config{client: client, channel: channel},
-    msg
+    _msg,
+    n
+  ) when n > @message_limit do
+    Logger.info("Truncated")
+    Client.msg(client, :privmsg, channel, "⚠ truncated message ⚠")
+    n + 1
+  end
+  defp do_reply(config, [a], n) do
+    do_reply(config, a, n)
+  end
+  defp do_reply(config, [a | b], n) do
+    n = do_reply(config, a, n)
+    if n > @message_limit do
+      n
+    else
+      do_reply(config, b, n)
+    end
+  end
+  defp do_reply(
+    %Config{client: client, channel: channel},
+    msg,
+    n
   ) when is_binary(msg) do
     Logger.info("Send: #{msg}")
     Client.msg(client, :privmsg, channel, msg)
+    n + 1
   end
 end
