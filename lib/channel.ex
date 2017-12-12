@@ -99,7 +99,7 @@ defmodule Boringbot.Bot.Channel do
       iex> Channel.truncate(["1", "2", "3", "4", "5"])
       ["1", "2", "3", "4", "5"]
   """
-  def truncate([a, b, c, d, e, f, _]) do
+  def truncate([a, b, c, d, e, f | _]) do
     [a, b, c, d, e, "⚠ truncated output ⚠"]
   end
   def truncate(list) do
