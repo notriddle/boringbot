@@ -55,7 +55,7 @@ defmodule Boringbot.Bot.Commands do
   def cmd_line(sender, "roll " <> args), do: cmd_roll(sender, args)
   def cmd_line(_sender, "calculate " <> args), do: cmd_calc(args)
   def cmd_line(_sender, "calc " <> args), do: cmd_calc(args)
-  def cmd_line(_sender, "botsnack"), do: Enum.random(["😋", "🤢", "🎂", "🍜", "🍣", "🍔", "🍕", "🌯"])
+  def cmd_line(_sender, "botsnack"), do: Enum.random(["😋", "🤢", "🍫", "🍪", "🎂", "🍜", "🍣", "🍔", "🍕", "🌯"])
   def cmd_line(_sender, "crash"), do: raise RuntimeError, "explicit crash"
   def cmd_line(sender, "help"), do: cmd_help(sender)
   def cmd_line(_sender, _command), do: []
