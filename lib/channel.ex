@@ -77,7 +77,7 @@ defmodule Boringbot.Bot.Channel do
     {:reply, :ok, config}
   end
   def handle_call({:do_reply, msg}, _from, config) do
-    do_reply(config, msg)
+    do_reply(config, truncate(msg))
     {:reply, :ok, config}
   end
 
@@ -86,9 +86,24 @@ defmodule Boringbot.Bot.Channel do
     bot = self()
     {pid, _} = Process.spawn(fn ->
       msg = apply(Bot.Commands, type, [nick, msg])
-      GenServer.call(bot, {:do_reply, msg})
+      GenServer.call(bot, {:do_reply, truncate(msg)})
     end, [:monitor])
     :timer.kill_after(:timer.seconds(10), pid)
+  end
+
+  @doc """
+  Keep the user from pushing an unbounded number of messages into the IRC channel.
+
+      iex> Channel.truncate(["do", "re", "mi", "fa", "so", "la", "ti", "do"])
+      ["do", "re", "mi", "fa", "so", "⚠ truncated output ⚠"]
+      iex> Channel.truncate(["1", "2", "3", "4", "5"])
+      ["1", "2", "3", "4", "5"]
+  """
+  def truncate([a, b, c, d, e, f, _]) do
+    [a, b, c, d, e, "⚠ truncated output ⚠"]
+  end
+  def truncate(list) do
+    list
   end
 
   defp do_reply(_, []) do
