@@ -3,17 +3,17 @@ APP="boringbot"
 # Note: you'll need to change this stuff.
 # Also, your server will need erlang-esl and erlang-dev.
 
-BUILD_HOST="52.26.80.122"
-BUILD_USER="boringbot"
-BUILD_AT="/home/boringbot/build"
+BUILD_HOST="54.212.29.70"
+BUILD_USER="ubuntu"
+BUILD_AT="/home/ubuntu/build"
 
-PRODUCTION_HOSTS="52.26.80.122"
-PRODUCTION_USER="boringbot"
-DELIVER_TO="/home/boringbot/production"
+PRODUCTION_HOSTS="54.212.29.70"
+PRODUCTION_USER="ubuntu"
+DELIVER_TO="/home/ubuntu/production"
 
 # For *Phoenix* projects, symlink prod.secret.exs to our tmp source
 pre_erlang_get_and_update_deps() {
-  local _prod_secret_path="/home/boringbot/prod.exs"
+  local _prod_secret_path="/home/ubuntu/prod.exs"
   if [ "$TARGET_MIX_ENV" = "prod" ]; then
     __sync_remote "
       ln -sfn '$_prod_secret_path' '$BUILD_AT/config/prod.exs'

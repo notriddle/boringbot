@@ -71,6 +71,7 @@ defmodule Boringbot.Bot do
     channel_pids = config.channels
     |> Enum.map(fn channel ->
       {:ok, pid} = Bot.Channel.start_link(%{nick: config.nick, channel: channel, client: config.client})
+      Process.monitor(pid)
       {channel, pid}
     end)
     |> Map.new()
@@ -99,6 +100,9 @@ defmodule Boringbot.Bot do
     Logger.warn "#{nick}: #{msg}"
     handle_command(nick, msg)
     {:noreply, config}
+  end
+  def handle_info({:'DOWN', _, :process, _pid, {_message, _stack}}, config) do
+    {:stop, :disconnected, config}
   end
   # Catch-all for messages you don't care about
   def handle_info(_msg, config) do
