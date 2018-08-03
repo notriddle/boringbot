@@ -38,6 +38,8 @@ See <https://github.com/narrowtux/abacus> for a list of supported commands.
 
     user> boringbot, roll 1d10
     boringbot> user: 2
+    user> boringbot, roll d6-1
+    boringbot> user: 0
 
 # Copyright license
 
