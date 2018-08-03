@@ -122,21 +122,39 @@ defmodule Boringbot.Bot.Commands do
     sender <> ": " <> response
   end
 
+  @doc """
+  Roll a dice. Also supports putting it in an expression.
+
+      iex> Boringbot.Bot.Commands.cmd_roll("me", "1d1")
+      ["me: 🎲 1"]
+      iex> Boringbot.Bot.Commands.cmd_roll("me", "1d1-1")
+      ["me: 🎲 0"]
+      iex> Boringbot.Bot.Commands.cmd_roll("me", "d1")
+      ["me: 🎲 1"]
+      iex> Boringbot.Bot.Commands.cmd_roll("me", "2d1")
+      ["me: 🎲 1", "me: 🎲 1"]
+      iex> Boringbot.Bot.Commands.cmd_roll("me", "d1-1")
+      ["me: 🎲 0"]
+  """
   @spec cmd_roll(binary, binary) :: response
   def cmd_roll(sender, args) do
-    {count, sides} = args
+    {count, sides, expr} = args
     |> String.split(~r/(\s|d)+/)
     |> case do
+      ["", sides] ->
+        {sides, expr} = Integer.parse(sides)
+        {1, sides, expr}
       [count, sides] ->
         {count, ""} = Integer.parse(count)
-        {sides, ""} = Integer.parse(sides)
-        {count, sides}
+        {sides, expr} = Integer.parse(sides)
+        {count, sides, expr}
       [sides] ->
-        {sides, ""} = Integer.parse(sides)
-        {1, sides}
+        {sides, expr} = Integer.parse(sides)
+        {1, sides, expr}
     end
     Enum.map(1..count, fn _ ->
       result = Enum.random(1..sides)
+      result = cmd_calc("#{result}#{expr}")
       sender <> ": 🎲 " <> to_string(result)
     end)
   end
